@@ -31,12 +31,7 @@ const ApplicantsSchema = mongoose.Schema({
     profile: {
         type: Object,
         default: {
-            text: "",
-            type: "",
-            // review: {
-            //     type: Boolean,
-            //     default: false
-            // },
+            bussinesName: null
         }
     }
 })

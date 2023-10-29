@@ -1,11 +1,16 @@
 const Jobs = require('../models/Jobs'); // Reemplaza con la ruta correcta a tu modelo
+const jobSkils = require('../data/skillJobs');
 
 // Controlador para crear un nuevo trabajo
 exports.createJob = async (req, res) => {
   try {
     const newJob = new Jobs(req.body);
     const savedJob = await newJob.save();
-    res.status(201).json(savedJob);
+    res.status(201).json({
+      data: savedJob,
+      msg: 'Trabajo creado correctamente',
+      status: true
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error al crear el trabajo' });
   }
@@ -13,8 +18,9 @@ exports.createJob = async (req, res) => {
 
 // Controlador para obtener todos los trabajos
 exports.getAllJobs = async (req, res) => {
+  const { id } = req.params;
   try {
-    const jobs = await Jobs.find();
+    const jobs = await Jobs.find({ company: id });
     res.status(200).json(jobs);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener los trabajos' });
@@ -43,7 +49,10 @@ exports.updateJobById = async (req, res) => {
     if (!updatedJob) {
       return res.status(404).json({ error: 'Trabajo no encontrado' });
     }
-    res.status(200).json(updatedJob);
+    res.status(200).json({
+      data: updatedJob,
+      msg: 'Tranajo actualizado correctamente'
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error al actualizar el trabajo' });
   }

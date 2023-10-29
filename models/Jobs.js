@@ -36,6 +36,9 @@ const JobsSchema = mongoose.Schema({
     keywords: {
         type: Array
     },
+    extraKeywords: {
+        type: Array
+    },
     avalibe: {
         type: Boolean
     },

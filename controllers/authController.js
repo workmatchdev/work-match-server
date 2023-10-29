@@ -1,6 +1,7 @@
 const Users = require('../models/Admins');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Applicants = require('../models/Applicants');
 
 exports.authenticateUser = async (req,res) => {
     const {email,password} = req.body;
@@ -19,6 +20,38 @@ exports.authenticateUser = async (req,res) => {
             }
         };
         const currentUser = await Users.findById(user._id).select('-password').populate('rol');
+        // Firmar JWT
+        jwt.sign(payload,process.env.SECRETEA,{
+            expiresIn:86400//1 dia
+        },(error,token)=>{
+            if(error) throw error;
+            // Mensaje de confirmacion
+             res.json({token,usuario:currentUser});
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({msg:'Error al iniciar sesion'})
+    }
+}
+
+exports.authenticateUserApp = async (req,res) => {
+    const {email,password} = req.body;
+    try {
+        let user = await Applicants.findOne({ email });
+        if(!user){
+            return res.status(400).json({msg:'Usuario no encontrado'})
+        }
+        const errorInPasword = await bcryptjs.compare(password,user.password);
+        if(!errorInPasword){
+            return res.status(400).json({msg:'Contraseña incorrecta'})
+        }
+        const payload = {
+            usuario:{
+                id:user._id
+            }
+        };
+        const currentUser = await Applicants.findById(user._id).select('-password');
+        console.log(currentUser);
         // Firmar JWT
         jwt.sign(payload,process.env.SECRETEA,{
             expiresIn:86400//1 dia
