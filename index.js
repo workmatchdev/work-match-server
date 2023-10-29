@@ -25,7 +25,6 @@ app.use('/api/companies',require('./routes/companies'));
 app.use('/api/admins',require('./routes/admins'));
 app.use('/api/roles',require('./routes/roles'));
 app.use('/api/auth',require('./routes/auth'));
-app.use('/api/jobs',require('./routes/jobs'));
 
 app.listen(PORT, () => {
     console.log(`El servidor esta funcionando en el puerto ${PORT}`);
