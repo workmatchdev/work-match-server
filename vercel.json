@@ -8,20 +8,18 @@
         {
             "src": "package.json",
             "use": "vercel-sapper"
-        },
-        {
-            "rewrites": [
-                {
-                    "source": "/(.*)",
-                    "destination": "/api"
-                }
-            ]
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
             "dest": "/"
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/api"
         }
     ]
 }
