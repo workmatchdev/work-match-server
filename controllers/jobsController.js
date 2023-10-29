@@ -1,5 +1,4 @@
 const Jobs = require('../models/Jobs'); // Reemplaza con la ruta correcta a tu modelo
-const jobSkils = require('../data/skillJobs');
 
 // Controlador para crear un nuevo trabajo
 exports.createJob = async (req, res) => {
