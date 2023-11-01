@@ -8,12 +8,12 @@ const app = express();
 // Conectar a la base de datos
 conectarDB();
 
-// Hablitar express.json
-app.use(express.json({extend:true,limit: '50mb'}));
+// // Hablitar express.json
+// app.use(express.json({extend:true,limit: '50mb'}));
  
-// Habilitar cors
+// // Habilitar cors
 
-app.use(cors());
+// app.use(cors());
 
 // puerto de la app
 const PORT = process.env.PORT || 4000;
