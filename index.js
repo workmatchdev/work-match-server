@@ -18,8 +18,8 @@ app.use(cors());
 // puerto de la app
 const PORT = process.env.PORT || 4000;
 
-app.use('/api/activeMemberships',require('./routes/activeMemberships'));
-app.use('/api/memberships',require('./routes/memberships'));
+// app.use('/api/activeMemberships',require('./routes/activeMemberships'));
+// app.use('/api/memberships',require('./routes/memberships'));
 // app.use('/api/applicants',require('./routes/applicants'));
 // app.use('/api/companies',require('./routes/companies'));
 // app.use('/api/admins',require('./routes/admins'));
