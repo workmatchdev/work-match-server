@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 
 // Conectar a la base de datos
-conectarDB();
+// conectarDB();
 
 // // Hablitar express.json
 // app.use(express.json({extend:true,limit: '50mb'}));
