@@ -31,7 +31,10 @@ const ApplicantsSchema = mongoose.Schema({
     profile: {
         type: Object,
         default: {
-            bussinesName: null
+            bussinesName: null,
+            skills: [],
+            experience: [],
+            studies: []
         }
     }
 })
