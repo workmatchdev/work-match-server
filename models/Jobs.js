@@ -14,11 +14,12 @@ const JobsSchema = mongoose.Schema({
         required: true
     },
     limitMatches: {
-        type: String,
+        type: Number,
+        default: 10,
         required: true
     },
     matchs:{
-        type: String,
+        type: Number,
         default: 0
     },
     maximumSalary: {

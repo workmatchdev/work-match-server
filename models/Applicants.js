@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const ApplicantsSchema = mongoose.Schema({
+    image:{
+        type: Object,
+        default:{
+            url: 'default'
+        }
+    },
     name: {
         type: String
     },

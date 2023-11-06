@@ -14,6 +14,7 @@ router.put('/upadateExperience/:id',applicantsController.upadateExperience);
 router.delete('/removeExperience',applicantsController.removeExperience);
 router.delete('/removeStudies',applicantsController.removeStudies);
 router.delete('/removeSkills',applicantsController.removeSkills);
+router.post('/uploadImage',applicantsController.uploadProfileImage)
 
 
 module.exports = router;

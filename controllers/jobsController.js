@@ -1,4 +1,31 @@
 const Jobs = require('../models/Jobs'); // Reemplaza con la ruta correcta a tu modelo
+const Applicants = require('../models/Applicants');
+
+exports.getAvalibleJobs = async (req, res) => {
+  try {
+    const { userId, currentPage } = req.body;
+    const resultsPerPage = 10;
+    const documentsSkip = (currentPage - 1) * resultsPerPage;
+    const applicant = await Applicants.findById(userId);
+    const applicantSkills = applicant?.skills ? applicant?.skills : [];
+    const getJobs = await Jobs.find({
+      $or: [
+        { keywords: { $in: applicantSkills } },
+        { extraKeywords: { $in: applicantSkills } },
+        { matchs: { $lt: "$limitMatches" } }
+      ],
+      avalibe: true
+    })
+      .skip(documentsSkip)
+      .limit(resultsPerPage);
+
+    res.status(200).json({
+      data: getJobs
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Ha ocurrido un error al obtener la información' });
+  }
+}
 
 // Controlador para crear un nuevo trabajo
 exports.createJob = async (req, res) => {

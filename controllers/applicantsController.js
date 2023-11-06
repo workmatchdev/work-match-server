@@ -2,6 +2,7 @@ const Applicants = require('../models/Applicants');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { uploadFile, destroyFile } = require('../tools/cloudinary/images')
 
 exports.createUser = async (req, res) => {
     try {
@@ -134,7 +135,7 @@ exports.removeSkills = async (req, res) => {
         const ObjectId = mongoose.Types.ObjectId;
         const user = await Applicants.findOne({ _id: userId });
         const currentSkills = user?.profile?.skills ? user?.profile?.skills : [];
-        const upadateSkills = currentSkills.filter(skill => !skill.id.equals(new ObjectId(skillId)) );
+        const upadateSkills = currentSkills.filter(skill => !skill.id.equals(new ObjectId(skillId)));
         const upadate = await Applicants.findByIdAndUpdate(userId, {
             profile: {
                 ...user.profile,
@@ -178,7 +179,7 @@ exports.removeExperience = async (req, res) => {
         const ObjectId = mongoose.Types.ObjectId;
         const user = await Applicants.findOne({ _id: userId });
         const currentExperience = user?.profile?.experience ? user?.profile?.experience : [];
-        const upadateExperience = currentExperience.filter(experience => !experience.id.equals(new ObjectId(experienceId)) );
+        const upadateExperience = currentExperience.filter(experience => !experience.id.equals(new ObjectId(experienceId)));
         const upadate = await Applicants.findByIdAndUpdate(userId, {
             profile: {
                 ...user.profile,
@@ -222,7 +223,7 @@ exports.removeStudies = async (req, res) => {
         const ObjectId = mongoose.Types.ObjectId;
         const user = await Applicants.findOne({ _id: userId });
         const currentstudies = user?.profile?.studies ? user?.profile?.studies : [];
-        const upadateStudies = currentstudies.filter(study => !study.id.equals(new ObjectId(studyId)) );
+        const upadateStudies = currentstudies.filter(study => !study.id.equals(new ObjectId(studyId)));
         const upadate = await Applicants.findByIdAndUpdate(userId, {
             profile: {
                 ...user.profile,
@@ -232,5 +233,28 @@ exports.removeStudies = async (req, res) => {
         return res.json({ msg: 'Eliminado Correctamente', status: true, user: upadate });
     } catch (error) {
         throw new Error(error);
+    }
+}
+
+exports.uploadProfileImage = async (req, res) => {
+    try {
+        const { image, userId } = req.body;
+        const user = await Applicants.findOne({ _id: userId });
+        const result = await uploadFile(image);
+        if (user?.image?.publicId && user?.image?.url !== 'default') {
+            destroyFile(user.image.publicId)
+        }
+        const upadate = await Applicants.findByIdAndUpdate(userId, {
+            image: {
+                url: result.url,
+                publicId: result.public_id
+            }
+        }, { new: true });
+        res.status(200).json({
+            user: upadate,
+            msg: "Imagen Actualizada Correctamente"
+        })
+    } catch (error) {
+        return res.status(400).json({ msg: 'Ha ocurrido un error al subir la imagen' });
     }
 }
