@@ -12,9 +12,25 @@ exports.getChats = async (req, res) => {
                 ]
             }
         )
-        .populate('applicant').select('-password')
-        .populate('bussines').select('-password');
-        res.status(200).json({ data: chats })
+            .populate('applicant')
+            .populate('bussines');
+
+        const formattChats = await Promise.all(
+            chats.map(async chat => {
+                const lastMessages = await Messages.find({ chat: chat._id }).limit(1);
+                const counterMessagesNoView = await Messages.countDocuments({ view: false })
+                return {
+                    lastMessages,
+                    counterMessagesNoView,
+                    _id: chat._id,
+                    bussines: chat.bussines,
+                    applicant: chat.applicant
+                }
+            })
+        )
+        
+
+        res.status(200).json({ data: formattChats })
     } catch (error) {
         res.status(500).json({ message: 'Ha ocurrido un error al recuperar los chats' })
     }
@@ -59,8 +75,8 @@ exports.sendMessage = async (req, res) => {
         const newMessages = new Messages(messageContent);
         newMessages.save((err) => {
             if (err) sendStatus(500);
-                global.io.emit('mensaje', req.body);
-                res.status(200).json({ data: newMessages, message: 'Mensaje eviado creado correctamente', status: true })
+            global.io.emit('mensaje', req.body);
+            res.status(200).json({ data: newMessages, message: 'Mensaje eviado creado correctamente', status: true })
         })
 
     } catch (error) {

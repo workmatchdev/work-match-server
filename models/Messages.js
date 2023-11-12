@@ -13,6 +13,10 @@ const MessageSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         default: null,
         ref: 'Chat'
+    },
+    view: {
+        type: Boolean,
+        default: false
     }
 })
 
