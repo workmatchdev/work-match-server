@@ -3,7 +3,7 @@ const router = express.Router();
 // const auth = require('../middleware/auth');
 const activeMembershipsController = require('../controllers/activeMembershipsController');
 
-router.get('/',activeMembershipsController.activateMembership);
+router.post('/paymentTest',activeMembershipsController.paymentTest);
 // router.get('/getMatch/:id',activeMembershipsController.getMatchById);
 // router.post('/create',activeMembershipsController.createMatch);
 // router.put('/update/:id',activeMembershipsController.updateMatchById);
