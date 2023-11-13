@@ -14,6 +14,11 @@ const MessageSchema = mongoose.Schema({
         default: null,
         ref: 'Chat'
     },
+    sender: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null,
+        ref: 'Applicants'
+    },
     view: {
         type: Boolean,
         default: false
