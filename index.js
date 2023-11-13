@@ -1,10 +1,14 @@
 const express = require('express');
 const conectarDB = require('./config/db');
 const cors = require('cors');
+const { Server } = require('socket.io');
+const http = require('http')
 // crear el servidor
 const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const server = http.createServer(app);
+const io = new Server(server,{
+    cors: '*'
+})
 
 global.io = io;
 // Conectar a la base de datos
@@ -13,11 +17,14 @@ conectarDB();
 // Hablitar express.json
 app.use(express.json({ extend: true, limit: '50mb' }));
 
-io.on('connection', function (socket) {
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', function (data) {
-        console.log(data);
+io.on('connection',  (socket) => {
+    console.log('a user connected');
+    socket.on('message', function (msg) {
+        socket.broadcast.emit('message',msg)
     });
+    // socket.on('connect', function () {
+    //     console.log('connect');
+    // });
 });
 
 // Habilitar cors
@@ -36,6 +43,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/chats', require('./routes/chats'));
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`El servidor esta funcionando en el puerto ${PORT}`);
 })

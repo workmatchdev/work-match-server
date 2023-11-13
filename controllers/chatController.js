@@ -17,8 +17,8 @@ exports.getChats = async (req, res) => {
 
         const formattChats = await Promise.all(
             chats.map(async chat => {
-                const lastMessages = await Messages.find({ chat: chat._id }).limit(1);
-                const counterMessagesNoView = await Messages.countDocuments({ view: false })
+                const lastMessages = await Messages.find({ chat: chat._id }).sort({ $natural: -1 }).limit(1);
+                const counterMessagesNoView = await Messages.countDocuments({ view: false, chat: chat._id, sender: { $ne: id } })
                 return {
                     lastMessages,
                     counterMessagesNoView,
@@ -28,7 +28,6 @@ exports.getChats = async (req, res) => {
                 }
             })
         )
-        
 
         res.status(200).json({ data: formattChats })
     } catch (error) {
@@ -67,20 +66,38 @@ exports.createChat = async (req, res) => {
 
 exports.sendMessage = async (req, res) => {
     try {
-        const { message, chatId } = req.body;
+        const { message, chatId, sender } = req.body;
         const messageContent = {
             message,
-            chat: chatId
+            chat: chatId,
+            sender
         };
         const newMessages = new Messages(messageContent);
-        newMessages.save((err) => {
-            if (err) sendStatus(500);
-            global.io.emit('mensaje', req.body);
-            res.status(200).json({ data: newMessages, message: 'Mensaje eviado creado correctamente', status: true })
-        })
+        const saveMessage = await newMessages.save();
+        global.io.emit('message', saveMessage);
+        res.status(200).json({ data: newMessages, message: 'Mensaje eviado creado correctamente', status: true })
 
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Ha ocurrido un error al enviar los mensajes' })
+    }
+}
+
+exports.updateMessageStatus = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const user = req.params.user;
+        const filtro = {
+            sender: { $ne: user },
+            chat: id,
+            view: false
+        };
+        const update = {
+            $set: { view: true }
+        };
+        await Messages.updateMany(filtro, update);
+        res.status(200).json({ message: 'Actualizado', status: true })
+    } catch (error) {
+        console.log(error);
     }
 }
