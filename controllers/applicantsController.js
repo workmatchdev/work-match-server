@@ -73,10 +73,10 @@ exports.deleteUser = async (req, res) => {
 
 exports.getUsersPagination = async (req, res) => {
     try {
-        const { page } = req.params;
-        const skip = (page - 1) * 25;
-        const users = await Usuarios.find().limit(25).skip(skip).select('word');;
-        const total = await Usuarios.find().count();
+        const { page, userType } = req.params;
+        const skip = (page - 1) * 10;
+        const users = await Applicants.find({userType}).limit(10).skip(skip).select('-password');
+        const total = await Applicants.find({userType}).count();
         // const users = await Promise.all(
         //     users.map(async user => {
         //         let usuario = JSON.parse(JSON.stringify(user));
