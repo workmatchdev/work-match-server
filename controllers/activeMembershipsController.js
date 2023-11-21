@@ -3,9 +3,9 @@ const Memberships = require('../models/Memberships');
 const Applicants = require('../models/Applicants');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 require('dotenv').config({ path: 'variables.env' });
+const stripe = require('stripe')('sk_test_51O9cy9KDOWfXWFnelaW3c7gTyGZsa2G1iB4I1zaDvQx3Gu3sLehqfwaOFboPUBFPfgyX15TykABjjY32bqTp3wQS00gT39cHoi');
 
 const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN, options: { timeout: 5000, idempotencyKey: 'abc' } });
-
 
 exports.paymentTest = async (req, res) => {
     const { membershipId, userId, token, payment_method_id, installments, issuer_id } = req.body;
@@ -32,11 +32,25 @@ exports.paymentTest = async (req, res) => {
     }
     // Step 5: Make the request
     payments.create({ body }).then(result => {
-        res.json({result})
+        res.json({ result })
     }).catch(error => {
-        res.json({error})
+        res.json({ error })
     });
+}
 
+exports.stripePaymentInten = async (req, res) => {
+    try {
+        const { amount } = req.body;
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: 'MXN',
+            payment_method_types: ['card'],
+        });
+        res.status(500).json({paymentIntent})
+    } catch (error) {
+        console.log(error);
+        res.send('Ha ocurrido un error')
+    }
 }
 
 exports.activateMembership = async (req, res) => {
