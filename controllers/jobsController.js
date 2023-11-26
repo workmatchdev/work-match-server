@@ -1,5 +1,7 @@
 const Jobs = require('../models/Jobs'); // Reemplaza con la ruta correcta a tu modelo
 const Applicants = require('../models/Applicants');
+const axios = require('axios');
+const sectors = require('../data/skillJobs');
 
 exports.getAvalibleJobs = async (req, res) => {
   try {
@@ -97,3 +99,30 @@ exports.deleteJobById = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar el trabajo' });
   }
 };
+
+exports.getSkills = async (req, res) => {
+  try {
+    const { search } = req.params;
+    const config = {
+      headers: {
+        apikey: "kBdue8fO2pqf4f8cmt73cU129jE9fQcI",
+      }
+    }
+    const query = await axios.get(`https://api.apilayer.com/skills?q=${search}`, config);
+    res.status(200).json({ skills: query.data })
+  } catch (error) {
+    console.log('error', error);
+    res.status(500).json({ error: 'Ha ocurrido un error' });
+  }
+}
+
+exports.getSector = async (req, res) => {
+  try {
+    const { search } = req.params;
+    const searchSectore = sectors.jobSkils.filter(sector => sector.name.toLowerCase().includes(search.toLowerCase()))
+    res.status(200).json({ sectores: searchSectore })
+  } catch (error) {
+    console.log('error', error);
+    res.status(500).json({ error: 'Ha ocurrido un error' });
+  }
+}

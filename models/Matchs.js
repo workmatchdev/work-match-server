@@ -5,24 +5,20 @@ const MatchsSchema = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: null,
-        ref: 'Users'
-    },
     status:{
         type: String,
-        required: true
-    },
-    company: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: null,
-        ref: 'Companies'
+        required: true,
+        default: 'pendding'
     },
     job: {
         type: mongoose.Schema.Types.ObjectId,
         default: null,
         ref: 'Jobs'
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null,
+        ref: 'Applicants'
     }
 })
 

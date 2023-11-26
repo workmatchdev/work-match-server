@@ -5,6 +5,8 @@ const matchController = require('../controllers/matchController');
 
 router.get('/',matchController.getAllMatches);
 router.get('/getMatch/:id',matchController.getMatchById);
+router.post('/discartJob',matchController.discartedJob)
+router.post('/discartApplicant',matchController.discartedApllicants)
 router.post('/create',matchController.createMatch);
 router.put('/update/:id',matchController.updateMatchById);
 router.delete('/delete/:id',matchController.deleteMatchById);

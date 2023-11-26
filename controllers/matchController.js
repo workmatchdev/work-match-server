@@ -1,4 +1,6 @@
 const Matchs = require('../models/Matchs'); // Reemplaza con la ruta correcta a tu modelo
+const DiscartedJobs = require('../models/DiscartedJobs');
+const DiscartedApllicants = require('../models/DiscartedApllicants');
 
 // Controlador para crear una nueva coincidencia
 exports.createMatch = async (req, res) => {
@@ -11,10 +13,32 @@ exports.createMatch = async (req, res) => {
   }
 };
 
+exports.discartedJob = async (req, res) => {
+  try {
+    const newDiscartedJob = new DiscartedJobs(req.body);
+    const saved = await newDiscartedJob.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(500).json({ error: 'Ha ocurrido un error intentelo mas tarder' });
+  }
+};
+
+exports.discartedApllicants = async (req, res) => {
+  try {
+    const newDiscartedApllicants = new DiscartedApllicants(req.body);
+    const saved = await newDiscartedApllicants.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(500).json({ error: 'Ha ocurrido un error intentelo mas tarder' });
+  }
+};
+
 // Controlador para obtener todas las coincidencias
 exports.getAllMatches = async (req, res) => {
   try {
-    const matches = await Matchs.find();
+    const matches = await Matchs.find()
+      .populate('job')
+      .populate('user');
     res.status(200).json(matches);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener las coincidencias' });
@@ -25,7 +49,9 @@ exports.getAllMatches = async (req, res) => {
 exports.getMatchById = async (req, res) => {
   const { id } = req.params;
   try {
-    const match = await Matchs.findById(id);
+    const match = await Matchs.findById(id)
+      .populate('job')
+      .populate('user');
     if (!match) {
       return res.status(404).json({ error: 'Coincidencia no encontrada' });
     }
@@ -43,7 +69,7 @@ exports.updateMatchById = async (req, res) => {
     if (!updatedMatch) {
       return res.status(404).json({ error: 'Coincidencia no encontrada' });
     }
-    res.status(200).json(updatedMatch);
+    res.status(200).json({data:updatedMatch, message: 'Actualizado correctamente'});
   } catch (error) {
     res.status(500).json({ error: 'Error al actualizar la coincidencia' });
   }
@@ -57,7 +83,7 @@ exports.deleteMatchById = async (req, res) => {
     if (!deletedMatch) {
       return res.status(404).json({ error: 'Coincidencia no encontrada' });
     }
-    res.status(204).send();
+    res.status(204).send('Eliminado correctamente');
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar la coincidencia' });
   }
