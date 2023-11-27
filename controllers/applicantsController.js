@@ -75,8 +75,8 @@ exports.getUsersPagination = async (req, res) => {
     try {
         const { page, userType } = req.params;
         const skip = (page - 1) * 10;
-        const users = await Applicants.find({userType}).limit(10).skip(skip).select('-password');
-        const total = await Applicants.find({userType}).count();
+        const users = await Applicants.find({ userType }).limit(10).skip(skip).select('-password');
+        const total = await Applicants.find({ userType }).count();
         // const users = await Promise.all(
         //     users.map(async user => {
         //         let usuario = JSON.parse(JSON.stringify(user));
@@ -108,20 +108,24 @@ exports.upadateSkills = async (req, res) => {
         const user = await Applicants.findOne({ _id: userId });
         const currentSkills = user?.profile?.skills ? user?.profile?.skills : [];
         const id = mongoose.Types.ObjectId();
+        const newSkill = {
+            id,
+            skill
+        }
         const upadate = await Applicants.findByIdAndUpdate(req.params.id, {
             profile: {
                 ...user.profile,
                 skills: [
                     ...currentSkills,
                     {
-                        id,
-                        skill
+                        ...newSkill
                     }
                 ]
             }
         }, { new: true });
-        return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate });
+        return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate, newSkill });
     } catch (error) {
+        console.log('error',error);
         return res.status(500).json({
             msg: "Ha ocurrido un error al actualizar las skills",
             error: true
@@ -131,7 +135,7 @@ exports.upadateSkills = async (req, res) => {
 
 exports.removeSkills = async (req, res) => {
     try {
-        const { skillId, userId } = req.body;
+        const { skillId, userId } = req.params;
         const ObjectId = mongoose.Types.ObjectId;
         const user = await Applicants.findOne({ _id: userId });
         const currentSkills = user?.profile?.skills ? user?.profile?.skills : [];
@@ -144,6 +148,7 @@ exports.removeSkills = async (req, res) => {
         }, { new: true });
         return res.json({ msg: 'Eliminado Correctamente', status: true, user: upadate });
     } catch (error) {
+        console.log(error);
         throw new Error(error);
     }
 }
@@ -155,19 +160,22 @@ exports.upadateExperience = async (req, res) => {
         const user = await Applicants.findOne({ _id: userId });
         const id = mongoose.Types.ObjectId();
         const currentExperience = user?.profile?.experience ? user?.profile?.experience : [];
+        const newSkill =  {
+            id,
+            experience
+        }
         const upadate = await Applicants.findByIdAndUpdate(req.params.id, {
             profile: {
                 ...user.profile,
                 experience: [
                     ...currentExperience,
                     {
-                        id,
-                        experience
+                        ...newSkill
                     }
                 ]
             }
         }, { new: true });
-        return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate });
+        return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate, newSkill });
     } catch (error) {
         throw new Error(error);
     }
@@ -175,7 +183,7 @@ exports.upadateExperience = async (req, res) => {
 
 exports.removeExperience = async (req, res) => {
     try {
-        const { experienceId, userId } = req.body;
+        const { experienceId, userId } = req.params;
         const ObjectId = mongoose.Types.ObjectId;
         const user = await Applicants.findOne({ _id: userId });
         const currentExperience = user?.profile?.experience ? user?.profile?.experience : [];
@@ -199,19 +207,23 @@ exports.upadateStudies = async (req, res) => {
         const user = await Applicants.findOne({ _id: userId });
         const id = mongoose.Types.ObjectId();
         const currentStudies = user?.profile?.studies ? user?.profile?.studies : [];
+        const newSkill =  {
+            id,
+            studies
+        }
+        console.log('newSkill',newSkill);
         const upadate = await Applicants.findByIdAndUpdate(req.params.id, {
             profile: {
                 ...user.profile,
                 studies: [
                     ...currentStudies,
                     {
-                        id,
-                        studies
+                        ...newSkill
                     }
                 ]
             }
         }, { new: true });
-        return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate });
+        return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate, newSkill });
     } catch (error) {
         throw new Error(error);
     }
@@ -219,7 +231,7 @@ exports.upadateStudies = async (req, res) => {
 
 exports.removeStudies = async (req, res) => {
     try {
-        const { studyId, userId } = req.body;
+        const { studyId, userId } = req.params;
         const ObjectId = mongoose.Types.ObjectId;
         const user = await Applicants.findOne({ _id: userId });
         const currentstudies = user?.profile?.studies ? user?.profile?.studies : [];
