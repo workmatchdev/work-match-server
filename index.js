@@ -37,6 +37,7 @@ app.use('/api/activeMemberships', require('./routes/activeMemberships'));
 app.use('/api/memberships', require('./routes/memberships'));
 app.use('/api/applicants', require('./routes/applicants'));
 app.use('/api/companies', require('./routes/companies'));
+app.use('/api/matchs', require('./routes/matchs'));
 app.use('/api/admins', require('./routes/admins'));
 app.use('/api/roles', require('./routes/roles'));
 app.use('/api/auth', require('./routes/auth'));

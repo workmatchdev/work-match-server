@@ -41,7 +41,8 @@ const JobsSchema = mongoose.Schema({
         type: Array
     },
     avalibe: {
-        type: Boolean
+        type: Boolean,
+        default: true
     },
     date: {
         type: Date,
@@ -50,7 +51,7 @@ const JobsSchema = mongoose.Schema({
     company: {
         type: mongoose.Schema.Types.ObjectId,
         default: null,
-        ref: 'Companies'
+        ref: 'Applicants'
     }
 })
 

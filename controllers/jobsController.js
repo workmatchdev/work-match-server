@@ -8,16 +8,17 @@ exports.getAvalibleJobs = async (req, res) => {
     const { userId, currentPage } = req.body;
     const resultsPerPage = 10;
     const documentsSkip = (currentPage - 1) * resultsPerPage;
-    const applicant = await Applicants.findById(userId);
-    const applicantSkills = applicant?.skills ? applicant?.skills : [];
+    const applicant = await Applicants.findById({ _id: userId });
+    const applicantSkills = applicant?.profile?.skills ? applicant?.profile?.skills : [];
+    const formatSkill = applicantSkills.map(skill => skill.skill.toLowerCase());
     const getJobs = await Jobs.find({
       $or: [
-        { keywords: { $in: applicantSkills } },
-        { extraKeywords: { $in: applicantSkills } },
-        { matchs: { $lt: "$limitMatches" } }
+        { "extraKeywords.name": { $in: formatSkill } },
+        { "keywords.name": { $in: formatSkill } }
       ],
-      avalibe: true
+      $expr: { $lt: ["$matchs", { $toInt: "$limitMatches" }] }
     })
+      .populate('company')
       .skip(documentsSkip)
       .limit(resultsPerPage);
 
@@ -25,6 +26,7 @@ exports.getAvalibleJobs = async (req, res) => {
       data: getJobs
     })
   } catch (error) {
+    console.log('error', error);
     res.status(500).json({ error: 'Ha ocurrido un error al obtener la información' });
   }
 }

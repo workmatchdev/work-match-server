@@ -36,7 +36,8 @@ exports.discartedApllicants = async (req, res) => {
 // Controlador para obtener todas las coincidencias
 exports.getAllMatches = async (req, res) => {
   try {
-    const matches = await Matchs.find()
+    const { user } = req.params;
+    const matches = await Matchs.find({ user: user })
       .populate('job')
       .populate('user');
     res.status(200).json(matches);
