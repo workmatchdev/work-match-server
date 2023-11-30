@@ -2,6 +2,8 @@ const Jobs = require('../models/Jobs'); // Reemplaza con la ruta correcta a tu m
 const Applicants = require('../models/Applicants');
 const axios = require('axios');
 const sectors = require('../data/skillJobs');
+const DiscartedJobs = require('../models/DiscartedJobs');
+const Matchs = require('../models/Matchs');
 
 exports.getAvalibleJobs = async (req, res) => {
   try {
@@ -11,12 +13,20 @@ exports.getAvalibleJobs = async (req, res) => {
     const applicant = await Applicants.findById({ _id: userId });
     const applicantSkills = applicant?.profile?.skills ? applicant?.profile?.skills : [];
     const formatSkill = applicantSkills.map(skill => skill.skill.toLowerCase());
+    const discartedJobs = await DiscartedJobs.find({ user: userId });
+    const matchs = await Matchs.find({ user: userId });
+    const formatterDiscartedJobs = discartedJobs.map(discartedJob => discartedJob.job);
+    const formatterMatchs = matchs.map(discartedJob => discartedJob.job);
     const getJobs = await Jobs.find({
       $or: [
         { "extraKeywords.name": { $in: formatSkill } },
         { "keywords.name": { $in: formatSkill } }
       ],
-      $expr: { $lt: ["$matchs", { $toInt: "$limitMatches" }] }
+      $and: [
+        { "_id": { $nin: formatterDiscartedJobs }},
+        { "_id": { $nin: formatterMatchs }}
+      ],
+      $expr: { $lt: ["$matchs", { $toInt: "$limitMatches" }] },
     })
       .populate('company')
       .skip(documentsSkip)
