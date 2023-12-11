@@ -270,3 +270,16 @@ exports.uploadProfileImage = async (req, res) => {
         return res.status(400).json({ msg: 'Ha ocurrido un error al subir la imagen' });
     }
 }
+
+exports.upadatePasswords = async (req,res) => {
+    try {
+        const {password,_id} = req.body;
+        const salt = await bcryptjs.genSalt(10);
+        const newPassword = {};
+        newPassword.password = await bcryptjs.hash(password, salt);
+        await Applicants.findOneAndUpdate({_id}, newPassword, {new:true});
+        res.json({msg:'Contraseña actualizada correctamente'});
+        } catch (error) {
+            res.status(500).json({msg:'Hubo un error al intetar cambiar la contraseña'});
+        }
+}

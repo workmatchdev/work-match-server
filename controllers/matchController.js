@@ -1,10 +1,19 @@
 const Matchs = require('../models/Matchs'); // Reemplaza con la ruta correcta a tu modelo
 const DiscartedJobs = require('../models/DiscartedJobs');
 const DiscartedApllicants = require('../models/DiscartedApllicants');
+const validations = require('../tools/validations');
 
 // Controlador para crear una nueva coincidencia
 exports.createMatch = async (req, res) => {
   try {
+    const numberOfMatchs = await validations.validateNumberOfMatches(req.body.user);
+    if(!numberOfMatchs.isAvailable){
+      console.log(numberOfMatchs);
+      return res.status(500).json({
+        error: 'Has superado el limite de matches de hoy',
+        status: false
+      })
+    }
     const newMatch = new Matchs(req.body);
     const savedMatch = await newMatch.save();
     res.status(201).json(savedMatch);
@@ -15,6 +24,13 @@ exports.createMatch = async (req, res) => {
 
 exports.discartedJob = async (req, res) => {
   try {
+    const numberOfMatchs = await validations.validateNumberOfMatches(req.user);
+    if(!numberOfMatchs.isAvailable){
+      return res.status(500).json({
+        msg: 'Has superado el limite de matches de hoy',
+        status: false
+      })
+    }
     const newDiscartedJob = new DiscartedJobs(req.body);
     const saved = await newDiscartedJob.save();
     res.status(201).json(saved);

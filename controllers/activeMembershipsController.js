@@ -7,6 +7,18 @@ const stripe = require('stripe')('sk_test_51O9cy9KDOWfXWFnelaW3c7gTyGZsa2G1iB4I1
 
 const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN, options: { timeout: 5000, idempotencyKey: 'abc' } });
 
+function addMonthsToCurrentDate(monthsToAdd) {
+    const currentDate = new Date();
+    const newDate = new Date(currentDate.setMonth(currentDate.getMonth() + monthsToAdd));
+    return newDate;
+}
+
+function isFechaMayorQueActual(fecha) {
+    const fechaIngresada = new Date(fecha);
+    const fechaActual = new Date();
+    return fechaIngresada > fechaActual;
+  }
+
 exports.paymentTest = async (req, res) => {
     const { membershipId, userId, token, payment_method_id, installments, issuer_id } = req.body;
     const membership = await Memberships.findById({ _id: membershipId });
@@ -46,7 +58,7 @@ exports.stripePaymentInten = async (req, res) => {
             currency: 'MXN',
             payment_method_types: ['card'],
         });
-        res.status(500).json({paymentIntent})
+        res.status(500).json({ paymentIntent })
     } catch (error) {
         console.log(error);
         res.send('Ha ocurrido un error')
@@ -56,9 +68,25 @@ exports.stripePaymentInten = async (req, res) => {
 exports.activateMembership = async (req, res) => {
     try {
         const { userId, membershipId } = req.body;
-
-
+        const getActiveMemberships = await ActiveMemberships.find({ user: userId });
+        const hasActiveMembership = getActiveMemberships.some(data => isFechaMayorQueActual(data.durations))
+        if(hasActiveMembership){
+            return res.status(200).json({
+                message: 'Actualmente tienes una membresia active'
+            })
+        }
+        const findMemberships = await Memberships.findById({ _id: membershipId });
+        const { duration, _id } = findMemberships;
+        const durationMembership = addMonthsToCurrentDate(Number(duration))
+        const body = {};
+        body.durations = durationMembership;
+        body.membership = _id;
+        body.user = userId;
+        const newActiveMembership = new ActiveMemberships(body);
+        const savedActiveMembership = await newActiveMembership.save();
+        res.status(200).json({ savedActiveMembership });
     } catch (error) {
-
+        console.log(error);
+        res.status(200).json({ error })
     }
 }

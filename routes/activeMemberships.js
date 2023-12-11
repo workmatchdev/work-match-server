@@ -5,7 +5,7 @@ const activeMembershipsController = require('../controllers/activeMembershipsCon
 
 router.post('/paymentTest',activeMembershipsController.paymentTest);
 router.post('/payment-intent-stripe',activeMembershipsController.stripePaymentInten)
-// router.get('/getMatch/:id',activeMembershipsController.getMatchById);
+router.post('/activate',activeMembershipsController.activateMembership);
 // router.post('/create',activeMembershipsController.createMatch);
 // router.put('/update/:id',activeMembershipsController.updateMatchById);
 // router.delete('/delete/:id',activeMembershipsController.deleteMatchById);

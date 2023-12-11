@@ -4,10 +4,18 @@ const axios = require('axios');
 const sectors = require('../data/skillJobs');
 const DiscartedJobs = require('../models/DiscartedJobs');
 const Matchs = require('../models/Matchs');
+const validations = require('../tools/validations');
 
 exports.getAvalibleJobs = async (req, res) => {
   try {
     const { userId, currentPage } = req.body;
+    const numberOfMatchs = await validations.validateNumberOfMatches(userId);
+    if(!numberOfMatchs.isAvailable){
+      return res.status(500).json({
+        error: 'Has superado el limite de matches de hoy',
+        status: false
+      })
+    }
     const resultsPerPage = 10;
     const documentsSkip = (currentPage - 1) * resultsPerPage;
     const applicant = await Applicants.findById({ _id: userId });
@@ -17,7 +25,8 @@ exports.getAvalibleJobs = async (req, res) => {
     const matchs = await Matchs.find({ user: userId });
     const formatterDiscartedJobs = discartedJobs.map(discartedJob => discartedJob.job);
     const formatterMatchs = matchs.map(discartedJob => discartedJob.job);
-    const getJobs = await Jobs.find({
+    const getJobs = await Jobs.find(
+      {
       $or: [
         { "extraKeywords.name": { $in: formatSkill } },
         { "keywords.name": { $in: formatSkill } }
@@ -27,7 +36,8 @@ exports.getAvalibleJobs = async (req, res) => {
         { "_id": { $nin: formatterMatchs }}
       ],
       $expr: { $lt: ["$matchs", { $toInt: "$limitMatches" }] },
-    })
+    }
+    )
       .populate('company')
       .skip(documentsSkip)
       .limit(resultsPerPage);
@@ -36,8 +46,7 @@ exports.getAvalibleJobs = async (req, res) => {
       data: getJobs
     })
   } catch (error) {
-    console.log('error', error);
-    res.status(500).json({ error: 'Ha ocurrido un error al obtener la información' });
+    res.status(500).json({ error: 'No se han encontrado mas coincidencias' });
   }
 }
 

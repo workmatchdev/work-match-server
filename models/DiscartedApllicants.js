@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const DiscartedAplicantsSchema = mongoose.Schema({
+    created: {
+        type: Date,
+        default: Date.now()
+    },
     company: {
         type: mongoose.Schema.Types.ObjectId,
         default: null,

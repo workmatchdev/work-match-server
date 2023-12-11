@@ -20,24 +20,10 @@ const ActiveMembershipsSchema = mongoose.Schema({
     validity:{
         type: String
     },
-    userType: {
-        type: String,
-        enum: ['Applicants', 'Companies'],
-        required: true,
-    },
-    userId: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        refPath: 'userType',
+        refPath: 'Applicants',
     }
 })
-
-ActiveMembershipsSchema.virtual('user', {
-    ref: function (doc) {
-        return doc.userType;
-    },
-    localField: 'userId',
-    foreignField: '_id',
-    justOne: true,
-});
 
 module.exports = mongoose.model('ActiveMemberships', ActiveMembershipsSchema);
