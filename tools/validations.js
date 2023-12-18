@@ -3,14 +3,14 @@ const Matchs = require("../models/Matchs");
 const ActiveMemberships = require('../models/ActiveMemberships');
 const Memberships = require('../models/Memberships');
 const moment = require('moment');
+const {getActiveMemberships} = require('../tools/helpers')
 
 exports.validateNumberOfMatches = async (userId) => {
     return new Promise(async (resolve, reject) => {
         try {
             const todayStart = moment().startOf('day').toDate();
             const todayEnd = moment().endOf('day').toDate();
-            const getCurrentMembership = await ActiveMemberships.findOne({user: userId});
-            const getMembership = await Memberships.findById(getCurrentMembership.membership);
+            const currentActiveMemberships = await getActiveMemberships(userId)
             const numberOfMatchsJobs = await Matchs.countDocuments({
                 user: userId,
                 date:  { $gte: todayStart, $lte: todayEnd }, 
@@ -21,11 +21,11 @@ exports.validateNumberOfMatches = async (userId) => {
             });
             const numberOfMatchs = Number(numberOfMatchsJobs) + Number(numberOfDiscartedJobs);
             resolve({
-                isAvailable: getMembership.countMatchs > numberOfMatchs,
+                isAvailable: currentActiveMemberships.membership.countMatchs > numberOfMatchs,
                 numberOfMatchs
-                
             })
         } catch (error) {
+            console.log(error);
             reject({
                 error: true,
                 msg: 'Ha ocurrido un error'

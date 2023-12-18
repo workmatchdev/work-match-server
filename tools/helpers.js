@@ -33,7 +33,7 @@ exports.getActiveMemberships = async (userId) => {
                 }
             })
         );
-        const paymentsPlans = formatMembershipsData.filter(paymentPlan => !paymentPlan.freePlan)
+        const paymentsPlans = formatMembershipsData.filter(paymentPlan => !paymentPlan.freePlan && paymentPlan.isActive)
         const paymentsFree = formatMembershipsData.filter(paymentPlan => paymentPlan.freePlan)
         let currentPlansData = paymentsFree[0];
         if (paymentsPlans.length) {

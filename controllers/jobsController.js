@@ -46,6 +46,7 @@ exports.getAvalibleJobs = async (req, res) => {
       data: getJobs
     })
   } catch (error) {
+    console.log('error',error);
     res.status(500).json({ error: 'No se han encontrado mas coincidencias' });
   }
 }

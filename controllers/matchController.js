@@ -8,7 +8,6 @@ exports.createMatch = async (req, res) => {
   try {
     const numberOfMatchs = await validations.validateNumberOfMatches(req.body.user);
     if(!numberOfMatchs.isAvailable){
-      console.log(numberOfMatchs);
       return res.status(500).json({
         error: 'Has superado el limite de matches de hoy',
         status: false
