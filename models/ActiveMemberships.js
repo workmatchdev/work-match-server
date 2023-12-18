@@ -11,7 +11,7 @@ const ActiveMembershipsSchema = mongoose.Schema({
     },
     membership: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
+        refPath: 'Memberships'
     },
     status: {
         type: Boolean,

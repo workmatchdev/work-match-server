@@ -46,12 +46,13 @@ async function emailCode(code, correo, nombre, fecha) {
                         </div>
                         <br>
                         <br>
-                        <p style='margin: 5px;font-family:Arial; font-weight: 500; text-align:center; font-size:14px; color: black;'>Estimado/a 
+                        <p style='margin: 5px;font-family:Arial; font-weight: 500; text-align:center; font-size:14px; color: black;'>
+                            Hola 
                             <span'>${nombre}</span> 
                         </p>
                         
                         <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; text-align:center; color: black;'>
-                            Ingresa el codigo en el siguiente enlace para restablecer tu contraseña 
+                            Este es tu codigo para reestablecer tu contraseña
                         </p><br>
 
                         <p style='margin: 5px;font-family:Arial; font-weight: bold; font-size:13px; text-align:center; color: black;'>
@@ -59,27 +60,15 @@ async function emailCode(code, correo, nombre, fecha) {
                         </p><br>
 
                         <p style='margin: 5px;font-family:Arial; font-weight: bold; font-size:13px; text-align:center; color: black;'>
-                            El codigo vence despues de ${dias} ${hora}
-                        </p><br>
-
-                        <center>
-                        <a style='font-family:Arial; font-weight: bold; font-size:13px; text-align:center; color: #fff; background-color: #B50000; width:100%; padding:10px;'
-                        href="http://proscore.mx/codigo/">Restablecer</a>
-                        </center>
-
-                        <br>
-
-                                
-                        <div style='display:flex; justify-content:space-between;'>
-                            <a style='text-decoration:none; margin:0 auto;' href="${social.facebook}">Facebook</a>
-                            <a style='text-decoration:none; margin:0 auto;' href="${social.instagram}">Instagram</a>
-                            <a style='text-decoration:none; margin:0 auto;' href="${social.twitter}">Twitter</a>
-                        </div>
-
-                        <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; color: black; text-align:center;'>
-                            proscore.mx@gmail.com
+                            El codigo vence en ${dias} ${hora}
                         </p>
-
+                        <br>
+                        <br>        
+                        <div style='display:flex; justify-content:space-between;'>
+                            <a style='text-decoration:none; margin:0 auto; color: black; font-family: Arial;' href="${social.facebook}">Facebook</a>
+                            <a style='text-decoration:none; margin:0 auto; color: black; font-family: Arial;' href="${social.instagram}">Instagram</a>
+                            <a style='text-decoration:none; margin:0 auto; color: black; font-family: Arial;' href="${social.linkedin}">Linkedin</a>
+                        </div>
                     </div>
                 </div>
             </body>
@@ -99,7 +88,7 @@ async function emailCode(code, correo, nombre, fecha) {
 
 }
 
-async function emailCodeConfirmacion(code, correo, nombre) {
+async function emailNotification(correo, nombre) {
 
     const transporter = await nodemailer.createTransport({
         pool: true,
@@ -134,30 +123,18 @@ async function emailCodeConfirmacion(code, correo, nombre) {
                         </div>
                         <br>
                         <br>
-                        <p style='margin: 5px;font-family:Arial; font-weight: 500; text-align:center; font-size:14px; color: black;'>Estimado/a 
-                            <span'>${nombre}</span> 
+                        <p style='margin: 5px;font-family:Arial; font-weight: 500; text-align:center; font-size:14px; color: black;'>
+                        Hola <span'>${nombre}</span> 
                         </p>
-                        
                         <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; text-align:center; color: black;'>
-                            Tu codigo de confirmación es:
-                        </p><br>
-
-                        <p style='margin: 5px;font-family:Arial; font-weight: bold; font-size:13px; text-align:center; color: black;'>
-                            ${code}
-                        </p><br>
-
-                        <br>
-                                
-                        <div style='display:flex; justify-content:space-between;'>
-                            <a style='text-decoration:none; margin:0 auto;' href="${social.facebook}">Facebook</a>
-                            <a style='text-decoration:none; margin:0 auto;' href="${social.instagram}">Instagram</a>
-                            <a style='text-decoration:none; margin:0 auto;' href="${social.twitter}">Twitter</a>
-                        </div>
-
-                        <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; color: black; text-align:center;'>
-                            proscore.mx@gmail.com
+                            Tienes un nuevo match, revisa tu aplicacion para ver las nuevas oportunidades que te esperan.
                         </p>
-
+                        <br><br><br>                                
+                        <div style='display:flex; justify-content:space-between;'>
+                            <a style='text-decoration:none; margin:0 auto; color: black; font-family: Arial;' href="${social.facebook}">Facebook</a>
+                            <a style='text-decoration:none; margin:0 auto; color: black; font-family: Arial;' href="${social.instagram}">Instagram</a>
+                            <a style='text-decoration:none; margin:0 auto; color: black; font-family: Arial;' href="${social.linkedin}">Linkedin</a>
+                        </div>
                     </div>
                 </div>
             </body>
@@ -256,5 +233,5 @@ async function sendMailValidacion(nombre, correo, texto) {
 module.exports = {
     sendMailValidacion: sendMailValidacion,
     emailCode: emailCode,
-    emailCodeConfirmacion: emailCodeConfirmacion
+    emailCodeConfirmacion: emailNotification
 }

@@ -4,7 +4,6 @@ const Applicants = require('../models/Applicants');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 require('dotenv').config({ path: 'variables.env' });
 const stripe = require('stripe')('sk_test_51O9cy9KDOWfXWFnelaW3c7gTyGZsa2G1iB4I1zaDvQx3Gu3sLehqfwaOFboPUBFPfgyX15TykABjjY32bqTp3wQS00gT39cHoi');
-
 const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN, options: { timeout: 5000, idempotencyKey: 'abc' } });
 
 function addMonthsToCurrentDate(monthsToAdd) {
@@ -12,12 +11,6 @@ function addMonthsToCurrentDate(monthsToAdd) {
     const newDate = new Date(currentDate.setMonth(currentDate.getMonth() + monthsToAdd));
     return newDate;
 }
-
-function isFechaMayorQueActual(fecha) {
-    const fechaIngresada = new Date(fecha);
-    const fechaActual = new Date();
-    return fechaIngresada > fechaActual;
-  }
 
 exports.paymentTest = async (req, res) => {
     const { membershipId, userId, token, payment_method_id, installments, issuer_id } = req.body;
@@ -52,29 +45,26 @@ exports.paymentTest = async (req, res) => {
 
 exports.stripePaymentInten = async (req, res) => {
     try {
-        const { amount } = req.body;
+        const { membershipId, userId } = req.body;
+        const membership = await Memberships.findById({ _id: membershipId });
+        const { disaccount, price } = membership;
+        const discount = (price * disaccount) / 100;
+        const finalPrice = (price - discount) * 100;
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amount,
+            amount: finalPrice,
             currency: 'MXN',
             payment_method_types: ['card'],
         });
-        res.status(500).json({ paymentIntent })
+        res.status(200).json({ paymentIntent: paymentIntent.client_secret })
     } catch (error) {
         console.log(error);
-        res.send('Ha ocurrido un error')
+        res.status(500).send('Ha ocurrido un error')
     }
 }
 
 exports.activateMembership = async (req, res) => {
     try {
         const { userId, membershipId } = req.body;
-        const getActiveMemberships = await ActiveMemberships.find({ user: userId });
-        const hasActiveMembership = getActiveMemberships.some(data => isFechaMayorQueActual(data.durations))
-        if(hasActiveMembership){
-            return res.status(200).json({
-                message: 'Actualmente tienes una membresia active'
-            })
-        }
         const findMemberships = await Memberships.findById({ _id: membershipId });
         const { duration, _id } = findMemberships;
         const durationMembership = addMonthsToCurrentDate(Number(duration))
@@ -84,7 +74,8 @@ exports.activateMembership = async (req, res) => {
         body.user = userId;
         const newActiveMembership = new ActiveMemberships(body);
         const savedActiveMembership = await newActiveMembership.save();
-        res.status(200).json({ savedActiveMembership });
+        const membership = await Memberships.findById({ _id: membershipId });
+        res.status(200).json({ savedActiveMembership, membership });
     } catch (error) {
         console.log(error);
         res.status(200).json({ error })
