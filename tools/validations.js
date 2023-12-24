@@ -32,5 +32,21 @@ exports.validateNumberOfMatches = async (userId) => {
             })
         }
     });
+}
 
+exports.validateAvailableBenefits = async (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const currentActiveMemberships = await getActiveMemberships(userId);
+            resolve({
+                benefits: currentActiveMemberships.membership.benefits,
+                membership: currentActiveMemberships.membership
+            })
+        } catch (error) {
+            reject({
+                error: true,
+                msg: 'Ha ocurrido un error'
+            })
+        }
+    });
 }

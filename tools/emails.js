@@ -1,6 +1,4 @@
 const nodemailer = require('nodemailer');
-const Usuario = require('./models/Usuario');
-const { crearNotificacion } = require('./controllers/notificacionesController');
 
 const social = {
     facebook: 'https://www.facebook.com/tusitioproscoremx/',
@@ -38,7 +36,7 @@ async function emailCode(code, correo, nombre, fecha) {
         <html>
             <body>
                 <div style='width: 25rem; border: 1px solid #ccc; margin: 0 auto; backgroun:#e1e6ea;'>
-                <div style=' text-align: center;background-color: #B50000;border-top-right-radius: .2rem;border-top-left-radius: .2rem; padding:5px 0'>
+                <div style=' text-align: center;background-color: #192d4b;border-top-right-radius: .2rem;border-top-left-radius: .2rem; padding:15px 0'>
                 </div>
                     <div style='padding: 20px;'>
                         <div style='text-align: center;'>
@@ -115,7 +113,7 @@ async function emailNotification(correo, nombre) {
         <html>
             <body>
                 <div style='width: 25rem; border: 1px solid #ccc; margin: 0 auto; backgroun:#e1e6ea;'>
-                <div style=' text-align: center;background-color: #B50000;border-top-right-radius: .2rem;border-top-left-radius: .2rem; padding:5px 0'>
+                <div style=' text-align: center;background-color: #192d4b;border-top-right-radius: .2rem;border-top-left-radius: .2rem; padding:15px 0'>
                 </div>
                     <div style='padding: 20px;'>
                         <div style='text-align: center;'>
@@ -154,7 +152,7 @@ async function emailNotification(correo, nombre) {
 
 }
 
-async function sendMailValidacion(nombre, correo, texto) {
+async function sendMailValidacion(nombre, correo) {
 
     const transporter = await nodemailer.createTransport({
         pool: true,
@@ -181,7 +179,7 @@ async function sendMailValidacion(nombre, correo, texto) {
         <html>
             <body>
                 <div style='width: 25rem; border: 1px solid #ccc; margin: 0 auto; backgroun:#e1e6ea;'>
-                <div style=' text-align: center;background-color: #B50000;border-top-right-radius: .2rem;border-top-left-radius: .2rem; padding:5px 0'>
+                <div style=' text-align: center;background-color: #192d4b;border-top-right-radius: .2rem;border-top-left-radius: .2rem; padding:15px 0'>
                 </div>
                     <div style='padding: 20px;'>
                         <div style='text-align: center;'>
@@ -189,28 +187,21 @@ async function sendMailValidacion(nombre, correo, texto) {
                         </div>
                         <br>
                         <br>
-                        <p style='margin: 5px;font-family:Arial; font-weight: 500; text-align:center; font-size:14px; color: black;'>Estimado/a 
+                        <p style='margin: 5px;font-family:Arial; font-weight: 500; text-align:center; font-size:14px; color: black;'>Hola 
                             <span'>${nombre}</span> 
                         </p>
                         
                         <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; text-align:center; color: black;'>
-                            ${texto}
+                            Gracias por comprar tu membresia
                         </p><br>
-
                         <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; text-align:center; color: black;'>
-                            Ingresa a tu cuenta para poder ver los resultados.
+                          ${membership}
                         </p><br>
-            
                         <div style='display:flex; justify-content:space-between;'>
                             <a style='text-decoration:none; margin:0 auto;' href="${social.facebook}">Facebook</a>
                             <a style='text-decoration:none; margin:0 auto;' href="${social.instagram}">Instagram</a>
                             <a style='text-decoration:none; margin:0 auto;' href="${social.twitter}">Twitter</a>
                         </div>
-
-                        <p style='margin: 5px;font-family:Arial; font-weight: 500; font-size:13px; color: black; text-align:center;'>
-                            proscore.mx@gmail.com
-                        </p>
-
                     </div>
                 </div>
             </body>

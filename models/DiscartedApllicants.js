@@ -10,7 +10,7 @@ const DiscartedAplicantsSchema = mongoose.Schema({
         default: null,
         ref: 'Applicants'
     },
-    Applicant: {
+    applicant: {
         type: mongoose.Schema.Types.ObjectId,
         default: null,
         ref: 'Applicants'

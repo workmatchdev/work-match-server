@@ -2,7 +2,11 @@ const Applicants = require('../models/Applicants');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const { uploadFile, destroyFile } = require('../tools/cloudinary/images')
+const { uploadFile, destroyFile } = require('../tools/cloudinary/images');
+const Jobs = require('../models/Jobs');
+const Matchs = require('../models/Matchs');
+const DiscartedAplicants = require('../models/DiscartedApllicants');
+const validations = require('../tools/validations');
 
 exports.createUser = async (req, res) => {
     try {
@@ -125,7 +129,7 @@ exports.upadateSkills = async (req, res) => {
         }, { new: true });
         return res.json({ msg: 'Guardado Correctamente', status: true, user: upadate, newSkill });
     } catch (error) {
-        console.log('error',error);
+        console.log('error', error);
         return res.status(500).json({
             msg: "Ha ocurrido un error al actualizar las skills",
             error: true
@@ -160,7 +164,7 @@ exports.upadateExperience = async (req, res) => {
         const user = await Applicants.findOne({ _id: userId });
         const id = mongoose.Types.ObjectId();
         const currentExperience = user?.profile?.experience ? user?.profile?.experience : [];
-        const newSkill =  {
+        const newSkill = {
             id,
             experience
         }
@@ -207,11 +211,11 @@ exports.upadateStudies = async (req, res) => {
         const user = await Applicants.findOne({ _id: userId });
         const id = mongoose.Types.ObjectId();
         const currentStudies = user?.profile?.studies ? user?.profile?.studies : [];
-        const newSkill =  {
+        const newSkill = {
             id,
             studies
         }
-        console.log('newSkill',newSkill);
+        console.log('newSkill', newSkill);
         const upadate = await Applicants.findByIdAndUpdate(req.params.id, {
             profile: {
                 ...user.profile,
@@ -271,15 +275,63 @@ exports.uploadProfileImage = async (req, res) => {
     }
 }
 
-exports.upadatePasswords = async (req,res) => {
+exports.upadatePasswords = async (req, res) => {
     try {
-        const {password,_id} = req.body;
+        const { password, _id } = req.body;
         const salt = await bcryptjs.genSalt(10);
         const newPassword = {};
         newPassword.password = await bcryptjs.hash(password, salt);
-        await Applicants.findOneAndUpdate({_id}, newPassword, {new:true});
-        res.json({msg:'Contraseña actualizada correctamente'});
-        } catch (error) {
-            res.status(500).json({msg:'Hubo un error al intetar cambiar la contraseña'});
+        await Applicants.findOneAndUpdate({ _id }, newPassword, { new: true });
+        res.json({ msg: 'Contraseña actualizada correctamente' });
+    } catch (error) {
+        res.status(500).json({ msg: 'Hubo un error al intetar cambiar la contraseña' });
+    }
+}
+
+exports.getApplicantsToMatch = async (req, res) => {
+    try {
+        const { userId, currentPage, jobId } = req.body;
+        const numberOfMatchs = await validations.validateNumberOfMatches(userId);
+        if (!numberOfMatchs.isAvailable) {
+            return res.status(500).json({
+                error: 'Has superado el limite de matches de hoy',
+                status: false
+            })
         }
+        const resultsPerPage = 10;
+        const documentsSkip = (currentPage - 1) * resultsPerPage;
+        const jobs = await Jobs.find({ company: userId, _id: jobId });
+        const matchs = await Matchs.find({ company: userId });
+        const formatterMatchs = matchs.map(discartedJob => discartedJob.user);
+        const discartedApllicants = await DiscartedAplicants.find({ company: userId });
+        const formatterDiscartedApplicants = discartedApllicants.map(discartedApplicant => discartedApplicant.applicant);
+        const formatKeyWords = jobs.map(job => {
+            const currentKeywords = job.keywords.map(extraKeyword => new RegExp(extraKeyword.name, 'i'))
+            return currentKeywords
+        }).flat();
+        const formatterExtraKeywords = jobs.map(job => {
+            const currentExtraKeywords = job.extraKeywords.map(extraKeyword => new RegExp(extraKeyword.name, 'i'))
+            return currentExtraKeywords
+        }).flat();
+        const allskills = [...formatKeyWords, ...formatterExtraKeywords];
+        const getApplicants = await Applicants.find({
+            $or: [
+                { "profile.skills.skill": { $in: allskills } },
+            ],
+            $and: [
+                { "userType": "applicant" },
+                { "_id": { $nin: formatterDiscartedApplicants } },
+                { "_id": { $nin: formatterMatchs } }
+            ],
+        })
+        .skip(documentsSkip)
+        .limit(resultsPerPage);
+
+        res.status(200).json({
+            data: getApplicants
+        })
+    } catch (error) {
+        console.log('error', error);
+        res.status(500).json({ error: 'No se han encontrado mas coincidencias' });
+    }
 }

@@ -19,7 +19,12 @@ const MatchsSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         default: null,
         ref: 'Applicants'
-    }
+    },
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null,
+        ref: 'Applicants'
+    },
 })
 
 module.exports = mongoose.model('Matchs', MatchsSchema);
