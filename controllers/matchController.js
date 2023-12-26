@@ -24,12 +24,9 @@ exports.createMatch = async (req, res) => {
     const currentJob = await Jobs.findById({ _id: job });
     const benefits = await validations.validateAvailableBenefits(userId);
     const searchMatch = await Matchs.findOne(searchsParams);
-    console.log('searchMatch',searchMatch,searchsParams);
     if (searchMatch) {
       const isApplicantMatch = searchMatch.user ? false : true;
-      // console.log('isApplicantMatch',isApplicantMatch,searchMatch);
       const updateBody = isApplicantMatch ? { user: userId } : { company: userId, userMatch }
-      // console.log('updateBody',updateBody);
       // if (!isApplicantMatch) {
         const upadate = await Matchs.findByIdAndUpdate(
           { _id: searchMatch._id },
