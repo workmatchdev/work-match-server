@@ -291,6 +291,7 @@ exports.upadatePasswords = async (req, res) => {
 exports.getApplicantsToMatch = async (req, res) => {
     try {
         const { userId, currentPage, jobId } = req.body;
+        console.log(req.body);
         const numberOfMatchs = await validations.validateNumberOfMatches(userId);
         if (!numberOfMatchs.isAvailable) {
             return res.status(500).json({
@@ -302,7 +303,7 @@ exports.getApplicantsToMatch = async (req, res) => {
         const documentsSkip = (currentPage - 1) * resultsPerPage;
         const jobs = await Jobs.find({ company: userId, _id: jobId });
         const matchs = await Matchs.find({ company: userId });
-        const formatterMatchs = matchs.map(discartedJob => discartedJob.user);
+        const formatterMatchs = matchs.map(userMatch => userMatch.userMatch);
         const discartedApllicants = await DiscartedAplicants.find({ company: userId });
         const formatterDiscartedApplicants = discartedApllicants.map(discartedApplicant => discartedApplicant.applicant);
         const formatKeyWords = jobs.map(job => {
@@ -313,6 +314,7 @@ exports.getApplicantsToMatch = async (req, res) => {
             const currentExtraKeywords = job.extraKeywords.map(extraKeyword => new RegExp(extraKeyword.name, 'i'))
             return currentExtraKeywords
         }).flat();
+        console.log('formatterDiscartedApplicants',formatterDiscartedApplicants,formatterMatchs);
         const allskills = [...formatKeyWords, ...formatterExtraKeywords];
         const getApplicants = await Applicants.find({
             $or: [
@@ -326,6 +328,8 @@ exports.getApplicantsToMatch = async (req, res) => {
         })
         .skip(documentsSkip)
         .limit(resultsPerPage);
+
+        console.log(getApplicants);
 
         res.status(200).json({
             data: getApplicants

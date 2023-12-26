@@ -9,6 +9,7 @@ const validations = require('../tools/validations');
 exports.createMatch = async (req, res) => {
   try {
     const { job, user, company, userMatch } = req.body;
+    console.log(req.body);
     const searchsParams = {};
     let userId = null;
     const currentUserIsApplicant = user ? true : false;
@@ -21,12 +22,15 @@ exports.createMatch = async (req, res) => {
       searchsParams.job = job;
     }
     const currentJob = await Jobs.findById({ _id: job });
-    const benefits = await validations.validateAvailableBenefits(user);
+    const benefits = await validations.validateAvailableBenefits(userId);
     const searchMatch = await Matchs.findOne(searchsParams);
+    console.log('searchMatch',searchMatch,searchsParams);
     if (searchMatch) {
-      const isApplicantMatch = searchMatch.user ? true : false;
-      const updateBody = !isApplicantMatch ? { user: userId } : { company: userId }
-      if (!isApplicantMatch) {
+      const isApplicantMatch = searchMatch.user ? false : true;
+      // console.log('isApplicantMatch',isApplicantMatch,searchMatch);
+      const updateBody = isApplicantMatch ? { user: userId } : { company: userId, userMatch }
+      // console.log('updateBody',updateBody);
+      // if (!isApplicantMatch) {
         const upadate = await Matchs.findByIdAndUpdate(
           { _id: searchMatch._id },
           updateBody,
@@ -37,12 +41,31 @@ exports.createMatch = async (req, res) => {
         if (isSendEmailsAvailable) {
 
         }
+        const isChatAvailable = benefits.benefits.includes('chat');
+        let createChat = null;
+        if (isChatAvailable) {
+          const newChatBody = currentUserIsApplicant ? {
+            bussines: currentJob.company,
+            applicant: userId
+          } : {
+            bussines: userId,
+            applicant: userMatch
+          }
+          const validateIfChatExist = await Chat.findOne(newChatBody);
+          if (!validateIfChatExist) {
+            const chat = new Chat(newChat);
+            createChat = await chat.save();
+          }
+        }
+
         return res.status(201).json({
           data: upadate,
           success: true,
-          newMatch: true
+          newMatch: true,
+          newChat: !!createChat,
+          process: 1
         });
-      }
+      // }
     }
 
     const numberOfMatchs = await validations.validateNumberOfMatches(userId);
@@ -77,9 +100,11 @@ exports.createMatch = async (req, res) => {
       data: savedMatch,
       success: true,
       newMatch: false,
-      newChat: !!createChat
+      newChat: !!createChat,
+      process: 2
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 'Ha ocurrido un error al realizar el match' });
   }
 };

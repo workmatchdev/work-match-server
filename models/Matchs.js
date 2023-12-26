@@ -20,6 +20,11 @@ const MatchsSchema = mongoose.Schema({
         default: null,
         ref: 'Applicants'
     },
+    userMatch: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null,
+        ref: 'Applicants'
+    },
     company: {
         type: mongoose.Schema.Types.ObjectId,
         default: null,
