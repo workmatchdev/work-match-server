@@ -34,6 +34,7 @@ app.use(cors());
 const PORT = process.env.PORT || 4000;
 
 app.use('/api/activeMemberships', require('./routes/activeMemberships'));
+app.use('/api/pageBuilder', require('./routes/pageBuilder'));
 app.use('/api/memberships', require('./routes/memberships'));
 app.use('/api/applicants', require('./routes/applicants'));
 app.use('/api/companies', require('./routes/companies'));
