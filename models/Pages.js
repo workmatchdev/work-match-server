@@ -33,6 +33,15 @@ const PagesSchema = mongoose.Schema({
     },
     politicaDePrivacidad: {
         type: String
+    },
+    updateLanding: {
+        type: Date,
+    },
+    updatePolicy: {
+        type: Date,
+    },
+    updateTems: {
+        type: Date,
     }
 })
 

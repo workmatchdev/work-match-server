@@ -96,6 +96,9 @@ async function updatePageById(req, res) {
         }
         if (backgroundBanner) destroyFile(backgroundBanner.publicId)
     }
+
+    newData.updateLanding = Date.now();
+
     try {
         const updatedPage = await PagesModel.findByIdAndUpdate(id, newData, { new: true });
         if (!updatedPage) {
@@ -113,7 +116,7 @@ async function updatePageTermsById(req, res) {
     const {
         terminosYcondiciones
     } = req.body;
-    const newData = { terminosYcondiciones };
+    const newData = { terminosYcondiciones, updateTems: Date.now() };
     try {
         const updatedPage = await PagesModel.findByIdAndUpdate(id, newData, { new: true });
         if (!updatedPage) {
@@ -131,7 +134,7 @@ async function updatePagePolicyById(req, res) {
     const {
         politicaDePrivacidad
     } = req.body;
-    const newData = { politicaDePrivacidad };
+    const newData = { politicaDePrivacidad, updatePolicy: Date.now() };
     try {
         const updatedPage = await PagesModel.findByIdAndUpdate(id, newData, { new: true });
         if (!updatedPage) {
