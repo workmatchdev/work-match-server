@@ -1,6 +1,81 @@
 const PagesModel = require('../models/Pages'); // Asegúrate de tener la ruta correcta
 const { uploadFile, destroyFile } = require('../tools/cloudinary/images');
+const BlogEntrance = require('../models/BlogEntrance');
 
+async function createBlogEntrance(req, res) {
+    const { image, ...rest } = req.body;
+    const blogData = { ...rest };
+    try {
+        const result = await uploadFile(image);
+        blogData.image = {
+            url: result.url,
+            publicId: result.public_id
+        }
+        const newBlogEntrance = await BlogEntrance.create(blogData);
+        res.status(201).json(newBlogEntrance);
+    } catch (error) {
+        console.log('error', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+async function updateBlogEntranceById(req, res) {
+    const { id } = req.params;
+    const newData = { ...req.body };
+    newData.updateLanding = Date.now();
+    try {
+        const updatedPage = await BlogEntrance.findByIdAndUpdate(id, newData, { new: true });
+        if (!updatedPage) {
+            return res.status(404).json({ message: 'Página no encontrada' });
+        }
+        res.json(updatedPage);
+    } catch (error) {
+        console.log('error', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+
+async function getAllBlogEntrance(req, res) {
+    try {
+        const page = await BlogEntrance.find({});
+        res.json({page});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+async function deleteBlogEntranceById(req, res) {
+    const { id } = req.params;
+    try {
+        const deletedPage = await BlogEntrance.findByIdAndDelete(id);
+        if (!deletedPage) {
+            return res.status(404).json({ message: 'Página no encontrada' });
+        }
+        res.json({ message: 'Página eliminada correctamente' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+async function getBlogEntranceById(req, res) {
+    const { id } = req.params;
+    try {
+        const page = await BlogEntrance.findById(id);
+        const suggestions = await BlogEntrance.aggregate([
+            { $match: { _id: { $ne: id } } },
+            { $sample: { size: 3 } },
+        ])
+        if (!page) {
+            return res.status(404).json({ message: 'Página no encontrada' });
+        }
+        res.json({ page: [page], suggestions });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
 async function getAllPages(req, res) {
     try {
@@ -168,5 +243,10 @@ module.exports = {
     updatePageById,
     deletePageById,
     updatePageTermsById,
-    updatePagePolicyById
+    updatePagePolicyById,
+    createBlogEntrance,
+    updateBlogEntranceById,
+    getAllBlogEntrance,
+    getBlogEntranceById,
+    deleteBlogEntranceById
 };

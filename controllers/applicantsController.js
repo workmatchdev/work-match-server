@@ -7,6 +7,10 @@ const Jobs = require('../models/Jobs');
 const Matchs = require('../models/Matchs');
 const DiscartedAplicants = require('../models/DiscartedApllicants');
 const validations = require('../tools/validations');
+const ActiveMemberships = require('../models/ActiveMemberships');
+const Memberships = require('../models/Memberships');
+const { getActiveMemberships } = require('../tools/helpers');
+
 
 exports.createUser = async (req, res) => {
     try {
@@ -81,13 +85,6 @@ exports.getUsersPagination = async (req, res) => {
         const skip = (page - 1) * 10;
         const users = await Applicants.find({ userType }).limit(10).skip(skip).select('-password');
         const total = await Applicants.find({ userType }).count();
-        // const users = await Promise.all(
-        //     users.map(async user => {
-        //         let usuario = JSON.parse(JSON.stringify(user));
-        //         usuario.password = '';
-        //         return usuario;
-        //     })
-        // );
         return res.json({ users, total });
     } catch (error) {
         console.log(error);
@@ -99,7 +96,19 @@ exports.getApplicantsById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await Applicants.find({ _id: id });
-        return res.json({ user, status: true });
+        
+        const getCurrentMembershipt = await ActiveMemberships.find({ user: id })
+        const formatMembershipsData = await Promise.all(
+            await getCurrentMembershipt.map(async (membership) => {
+                const getMembership = await Memberships.findById(membership.membership);
+                return {
+                    membership: getMembership,
+                    paymentMembership:membership
+                }
+            })
+        );
+        const currentMemberships = await getActiveMemberships(id);
+        return res.json({ user, status: true, currentMemberships, paymentMemberships: formatMembershipsData });
     } catch (error) {
         throw new Error(error);
     }
@@ -323,8 +332,8 @@ exports.getApplicantsToMatch = async (req, res) => {
                 { "_id": { $nin: formatterMatchs } }
             ],
         })
-        .skip(documentsSkip)
-        .limit(resultsPerPage);
+            .skip(documentsSkip)
+            .limit(resultsPerPage);
 
         res.status(200).json({
             data: getApplicants

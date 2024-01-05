@@ -3,8 +3,8 @@ const router = express.Router();
 // const auth = require('../middleware/auth');
 const applicantsController = require('../controllers/applicantsController');
 
-router.get('/:page/:userType',applicantsController.getUsersPagination);
 router.get('/getApplicant/:id',applicantsController.getApplicantsById);
+router.get('/:page/:userType',applicantsController.getUsersPagination);
 router.post('/getApplicants/matchs',applicantsController.getApplicantsToMatch);
 router.post('/create',applicantsController.createUser);
 router.put('/update/:id',applicantsController.editUser);
