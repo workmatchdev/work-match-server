@@ -6,7 +6,7 @@ const http = require('http')
 // crear el servidor
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server,{
+const io = new Server(server, {
     cors: '*'
 })
 
@@ -17,10 +17,10 @@ conectarDB();
 // Hablitar express.json
 app.use(express.json({ extend: true, limit: '50mb' }));
 
-io.on('connection',  (socket) => {
+io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('message', function (msg) {
-        socket.broadcast.emit('message',msg)
+        socket.broadcast.emit('message', msg)
     });
     // socket.on('connect', function () {
     //     console.log('connect');
@@ -38,6 +38,7 @@ app.use('/api/pageBuilder', require('./routes/pageBuilder'));
 app.use('/api/memberships', require('./routes/memberships'));
 app.use('/api/applicants', require('./routes/applicants'));
 app.use('/api/companies', require('./routes/companies'));
+app.use('/api/support', require('./routes/support'));
 app.use('/api/matchs', require('./routes/matchs'));
 app.use('/api/admins', require('./routes/admins'));
 app.use('/api/roles', require('./routes/roles'));
