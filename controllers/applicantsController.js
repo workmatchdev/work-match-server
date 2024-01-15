@@ -11,6 +11,11 @@ const ActiveMemberships = require('../models/ActiveMemberships');
 const Memberships = require('../models/Memberships');
 const { getActiveMemberships } = require('../tools/helpers');
 
+function addMonthsToCurrentDate(monthsToAdd) {
+    const currentDate = new Date();
+    const newDate = new Date(currentDate.setMonth(currentDate.getMonth() + monthsToAdd));
+    return newDate;
+}
 
 exports.createUser = async (req, res) => {
     try {
@@ -33,6 +38,13 @@ exports.createUser = async (req, res) => {
         body.userType = userType;
         const user = new Applicants(body);
         user.save();
+        const bodyAM = {};
+        const durationMembership = addMonthsToCurrentDate(120)
+        bodyAM.durations = durationMembership;
+        bodyAM.membership = req.body.isBussines ? "6571852c454ed7faec2eedae" : "6571859d454ed7faec2eedb0";
+        bodyAM.user = user._id;
+        const newActiveMembership = new ActiveMemberships(bodyAM);
+        await newActiveMembership.save();
         const payload = {
             usuario: {
                 id: user._id
@@ -96,14 +108,14 @@ exports.getApplicantsById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await Applicants.find({ _id: id });
-        
+
         const getCurrentMembershipt = await ActiveMemberships.find({ user: id })
         const formatMembershipsData = await Promise.all(
             await getCurrentMembershipt.map(async (membership) => {
                 const getMembership = await Memberships.findById(membership.membership);
                 return {
                     membership: getMembership,
-                    paymentMembership:membership
+                    paymentMembership: membership
                 }
             })
         );

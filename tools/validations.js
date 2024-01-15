@@ -21,7 +21,7 @@ exports.validateNumberOfMatches = async (userId) => {
             });
             const numberOfMatchs = Number(numberOfMatchsJobs) + Number(numberOfDiscartedJobs);
             resolve({
-                isAvailable: currentActiveMemberships.membership.countMatchs > numberOfMatchs,
+                isAvailable: currentActiveMemberships?.membership?.countMatchs > numberOfMatchs,
                 numberOfMatchs
             })
         } catch (error) {

@@ -5,6 +5,7 @@ const { MercadoPagoConfig, Payment } = require('mercadopago');
 require('dotenv').config({ path: 'variables.env' });
 const stripe = require('stripe')('sk_test_51O9cy9KDOWfXWFnelaW3c7gTyGZsa2G1iB4I1zaDvQx3Gu3sLehqfwaOFboPUBFPfgyX15TykABjjY32bqTp3wQS00gT39cHoi');
 const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN, options: { timeout: 5000, idempotencyKey: 'abc' } });
+const {createNotification} = require('../tools/createNotifications');
 
 function addMonthsToCurrentDate(monthsToAdd) {
     const currentDate = new Date();
@@ -75,6 +76,7 @@ exports.activateMembership = async (req, res) => {
         const newActiveMembership = new ActiveMemberships(body);
         const savedActiveMembership = await newActiveMembership.save();
         const membership = await Memberships.findById({ _id: membershipId });
+        createNotification(userId,"newPayment")
         res.status(200).json({ savedActiveMembership, membership });
     } catch (error) {
         console.log(error);

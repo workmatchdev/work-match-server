@@ -3,6 +3,7 @@ const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Applicants = require('../models/Applicants');
 const { getActiveMemberships } = require('../tools/helpers');
+const { createNotification } = require('../tools/createNotifications');
 
 exports.authenticateUser = async (req, res) => {
     const { email, password } = req.body;
@@ -53,7 +54,10 @@ exports.authenticateUserApp = async (req, res) => {
         };
         const currentUser = await Applicants.findById(user._id).select('-password');
         const currentMemberships = await getActiveMemberships(user._id);
-        if(!currentMemberships){
+        if (!currentMemberships.isActive && !currentMemberships.freePlan) {
+            createNotification(user._id, "membershipFinished");
+        }
+        if (!currentMemberships) {
             res.status(400).json({ msg: 'Error al iniciar sesion' })
         }
         // Firmar JWT

@@ -22,6 +22,10 @@ io.on('connection', (socket) => {
     socket.on('message', function (msg) {
         socket.broadcast.emit('message', msg)
     });
+
+    socket.on('notification', (noti) => {
+        socket.broadcast.emit('notification', noti)
+    })
     // socket.on('connect', function () {
     //     console.log('connect');
     // });
@@ -35,6 +39,8 @@ const PORT = process.env.PORT || 4000;
 
 app.use('/api/activeMemberships', require('./routes/activeMemberships'));
 app.use('/api/changePassword', require('./routes/forgotPaswword'));
+app.use('/api/configurations', require('./routes/configurations'));
+app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/pageBuilder', require('./routes/pageBuilder'));
 app.use('/api/memberships', require('./routes/memberships'));
 app.use('/api/applicants', require('./routes/applicants'));
@@ -49,4 +55,5 @@ app.use('/api/chats', require('./routes/chats'));
 
 server.listen(PORT, () => {
     console.log(`El servidor esta funcionando en el puerto ${PORT}`);
+    // createNotification("65359bf7890925d3cb8b2871","newMatch");
 })

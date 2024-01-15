@@ -14,7 +14,8 @@ exports.createNotification = async (req, res) => {
 // Controlador para obtener todas las notificaciones
 exports.getAllNotifications = async (req, res) => {
   try {
-    const notifications = await Notifications.find();
+    const userId = req.params.id;
+    const notifications = await Notifications.find({user: userId}).sort({date: -1});
     res.status(200).json(notifications);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener las notificaciones' });
@@ -39,9 +40,9 @@ exports.getNotificationById = async (req, res) => {
 exports.updateNotificationById = async (req, res) => {
   const { id } = req.params;
   try {
-    const updatedNotification = await Notifications.findByIdAndUpdate(
-      id,
-      req.body,
+    const updatedNotification = await Notifications.updateMany(
+      {user:id},
+      {review: true},
       { new: true }
     );
     if (!updatedNotification) {

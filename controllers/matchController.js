@@ -4,12 +4,12 @@ const Jobs = require('../models/Jobs');
 const Chat = require('../models/Chats');
 const DiscartedApllicants = require('../models/DiscartedApllicants');
 const validations = require('../tools/validations');
+const { createNotification } = require('../tools/createNotifications');
 
 // Controlador para crear una nueva coincidencia
 exports.createMatch = async (req, res) => {
   try {
     const { job, user, company, userMatch } = req.body;
-    console.log(req.body);
     const searchsParams = {};
     let userId = null;
     const currentUserIsApplicant = user ? true : false;
@@ -28,45 +28,48 @@ exports.createMatch = async (req, res) => {
       const isApplicantMatch = searchMatch.user ? false : true;
       const updateBody = isApplicantMatch ? { user: userId } : { company: userId, userMatch }
       // if (!isApplicantMatch) {
-        const upadate = await Matchs.findByIdAndUpdate(
-          { _id: searchMatch._id },
-          updateBody,
-          { new: true }
-        );
-        // Send email
-        const isSendEmailsAvailable = benefits.benefits.includes('emails');
-        if (isSendEmailsAvailable) {
+      const upadate = await Matchs.findByIdAndUpdate(
+        { _id: searchMatch._id },
+        updateBody,
+        { new: true }
+      );
+      // Send email
+      const isSendEmailsAvailable = benefits.benefits.includes('emails');
+      if (isSendEmailsAvailable) {
 
+      }
+      const isChatAvailable = benefits.benefits.includes('chat');
+      let createChat = null;
+      if (isChatAvailable) {
+        const newChatBody = currentUserIsApplicant ? {
+          bussines: currentJob.company,
+          applicant: userId
+        } : {
+          bussines: userId,
+          applicant: userMatch
         }
-        const isChatAvailable = benefits.benefits.includes('chat');
-        let createChat = null;
-        if (isChatAvailable) {
-          const newChatBody = currentUserIsApplicant ? {
-            bussines: currentJob.company,
-            applicant: userId
-          } : {
-            bussines: userId,
-            applicant: userMatch
-          }
-          const validateIfChatExist = await Chat.findOne(newChatBody);
-          if (!validateIfChatExist) {
-            const chat = new Chat(newChat);
-            createChat = await chat.save();
-          }
+        createNotification(newChatBody.bussines, "newMatch");
+        createNotification(newChatBody.applicant, "newMatch");
+        const validateIfChatExist = await Chat.findOne(newChatBody);
+        if (!validateIfChatExist) {
+          const chat = new Chat(newChat);
+          createChat = await chat.save();
         }
+      }
 
-        return res.status(201).json({
-          data: upadate,
-          success: true,
-          newMatch: true,
-          newChat: !!createChat,
-          process: 1
-        });
+      return res.status(201).json({
+        data: upadate,
+        success: true,
+        newMatch: true,
+        newChat: !!createChat,
+        process: 1
+      });
       // }
     }
 
     const numberOfMatchs = await validations.validateNumberOfMatches(userId);
     if (!numberOfMatchs.isAvailable) {
+      createNotification(userId, "newMatch");
       return res.status(500).json({
         error: 'Has superado el limite de matches de hoy',
         status: false
