@@ -1,3 +1,4 @@
+const Configurations = require('../models/Configurations');
 const nodemailer = require('nodemailer');
 
 const social = {
@@ -8,17 +9,20 @@ const social = {
 
 async function emailCode(code, correo, nombre, fecha) {
 
+    const data = await Configurations.findById({ _id: "65a52b6f9882bc696c5f2e68" });
+    const { configuration } = data;
+
     const dias = fecha.toLocaleDateString("es-ES", { year: 'numeric', month: '2-digit', day: '2-digit', });
     const hora = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
 
     const transporter = await nodemailer.createTransport({
         pool: true,
-        host: 'smtp.hostinger.com',
-        post: 587,
+        host: configuration.host,
+        post: configuration.port,
         secure: false,
         auth: {
-            user: "contacto@proscore.mx",
-            pass: "Proscore.mx.01"
+            user: configuration.email,
+            pass: configuration.password
         },
         tls: {
             secure: false,
@@ -88,14 +92,17 @@ async function emailCode(code, correo, nombre, fecha) {
 
 async function emailNotification(correo, nombre) {
 
+    const data = await Configurations.findById({ _id: "65a52b6f9882bc696c5f2e68" });
+    const { configuration } = data;
+
     const transporter = await nodemailer.createTransport({
         pool: true,
-        host: 'smtp.hostinger.com',
-        post: 587,
+        host: configuration.host,
+        post: configuration.port,
         secure: false,
         auth: {
-            user: "contacto@proscore.mx",
-            pass: "Proscore.mx.01"
+            user: configuration.email,
+            pass: configuration.password
         },
         tls: {
             secure: false,
@@ -154,14 +161,17 @@ async function emailNotification(correo, nombre) {
 
 async function sendMailValidacion(nombre, correo) {
 
+    const data = await Configurations.findById({ _id: "65a52b6f9882bc696c5f2e68" });
+    const { configuration } = data;
+
     const transporter = await nodemailer.createTransport({
         pool: true,
-        host: 'smtp.hostinger.com',
-        post: 587,
+        host: configuration.host,
+        post: configuration.port,
         secure: false,
         auth: {
-            user: "contacto@proscore.mx",
-            pass: "Proscore.mx.01"
+            user: configuration.email,
+            pass: configuration.password
         },
         tls: {
             secure: false,
