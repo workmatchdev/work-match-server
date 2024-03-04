@@ -3,7 +3,7 @@ const Memberships = require('../models/Memberships');
 const Applicants = require('../models/Applicants');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 require('dotenv').config({ path: 'variables.env' });
-const stripe = require('stripe')('sk_test_51O9cy9KDOWfXWFnelaW3c7gTyGZsa2G1iB4I1zaDvQx3Gu3sLehqfwaOFboPUBFPfgyX15TykABjjY32bqTp3wQS00gT39cHoi');
+const stripe = require('stripe')('');
 const client = new MercadoPagoConfig({ accessToken: process.env.ACCESS_TOKEN, options: { timeout: 5000, idempotencyKey: 'abc' } });
 const {createNotification} = require('../tools/createNotifications');
 
